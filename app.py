@@ -1,39 +1,84 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
 import os
 import json
-import numpy as np
-import pandas as pd
 import segyio
-import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
 from pathlib import Path
-from plotly.subplots import make_subplots
 
+# Page Config
 st.set_page_config(layout="wide", page_title="Geoscience Pipeline Dashboard", page_icon="🌍")
 
+# Custom CSS for Premium Look
 st.markdown("""
 <style>
-    .stApp { background-color: #fafafa; font-family: 'Inter', sans-serif; }
-    button, div[role="button"], a, input, .stSelectbox, .stSlider { cursor: pointer !important; }
-    h1, h2, h3 { color: #1f2937; font-weight: 600; letter-spacing: -0.5px; }
-    .stTabs [data-baseweb="tab-list"] { gap: 20px; }
-    .stTabs [data-baseweb="tab"] { padding: 10px 20px; border-radius: 8px 8px 0 0; }
+    .main {
+        background-color: #f8f9fa;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #ffffff;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-weight: 600;
+        cursor: pointer !important;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #e9ecef;
+        border-bottom: 2px solid #007bff;
+    }
+    /* Force cursor to pointer for all buttons and interactive elements */
+    button, [role="button"], [role="tab"], .stSelectbox, .stSlider {
+        cursor: pointer !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("🌍 Integrated Geoscience Dashboard")
 
-tab_wells, tab_seismic, tab_metadata = st.tabs(["📊 Well Logs & Petrophysics", "🌊 Seismic Data", "📁 Project Metadata & Events"])
+tab_wells, tab_seismic, tab_metadata = st.tabs([
+    "📊 Well Logs & Petrophysics", 
+    "🌊 Seismic Data", 
+    "📁 Project Metadata & Events"
+])
 
 # ==========================================
-# TAB 1: WELL LOGS & PETROPHYSICS
+# HELPERS
 # ==========================================
-
 def get_curve(df, aliases):
     for a in aliases:
         if a in df.columns: return a
     return None
 
+@st.cache_data
+def load_seismic_cube(file_path):
+    try:
+        with segyio.open(file_path, ignore_geometry=True) as f:
+            data = segyio.tools.cube(f)
+            samples = f.samples
+            # Attempt to get geometry
+            try:
+                with segyio.open(file_path) as f_geom:
+                    inlines = f_geom.ilines
+                    xlines = f_geom.xlines
+                    return data, samples, inlines, xlines
+            except:
+                return data, samples, np.arange(data.shape[0]), np.arange(data.shape[1])
+    except Exception as e:
+        return None, str(e), None, None
+
+# ==========================================
+# TAB 1: WELL LOGS & PETROPHYSICS
+# ==========================================
 with tab_wells:
     well_data_dir = "outputs/data"
     well_fig_dir = "outputs/figures"
@@ -41,7 +86,7 @@ with tab_wells:
     well_files = [f for f in os.listdir(well_data_dir) if f.endswith(".csv")] if os.path.exists(well_data_dir) else []
         
     if not well_files:
-        st.warning("No processed well data found.")
+        st.warning("No processed well data found. Please run the pipeline first.")
     else:
         selected_well_file = st.selectbox("Select Well Dataset", well_files)
         well_name = selected_well_file.replace("_processed.csv", "")
@@ -50,9 +95,9 @@ with tab_wells:
         # Resolve aliases
         c_gr = get_curve(df, ["GR", "GRAFM", "GR1BFM", "SGR"])
         c_rt = get_curve(df, ["RT", "RPTHM", "RACLM", "RESD"])
-        c_rhob = get_curve(df, ["RHOB", "BDCM", "DEN", "ZDEN"])
-        c_nphi = get_curve(df, ["NPHI", "NPLM", "NEU", "TNPH"])
-        c_dt = get_curve(df, ["DT", "DTPM", "DTC"])
+        c_rhob = get_curve(df, ["RHOB", "BDCM", "DEN", "ZDEN", "BDCFM"])
+        c_nphi = get_curve(df, ["NPHI", "NPLM", "NEU", "TNPH", "NPLFM"])
+        c_dt = get_curve(df, ["DT", "DTPM", "DTC", "DTP4M"])
         c_vsh = get_curve(df, ["VSH"])
         c_phit = get_curve(df, ["PHIT_D", "PHIT"])
         c_ai = get_curve(df, ["AI"])
@@ -81,7 +126,6 @@ with tab_wells:
                 st.warning("No standard curves found to plot.")
             else:
                 fig_log = make_subplots(rows=1, cols=len(tracks), shared_yaxes=True, horizontal_spacing=0.02, subplot_titles=[t[0] for t in tracks])
-                
                 for i, (name, curve) in enumerate(tracks, 1):
                     if curve == c_gr:
                         fig_log.add_trace(go.Scatter(x=df[c_gr], y=df["DEPTH"], line=dict(color='green', width=1), name=c_gr), row=1, col=i)
@@ -97,6 +141,8 @@ with tab_wells:
                         fig_log.update_xaxes(range=[140, 40], row=1, col=i)
                     elif curve == c_vsh:
                         fig_log.add_trace(go.Scatter(x=df[c_vsh], y=df["DEPTH"], line=dict(color='saddlebrown', width=1), fill='tozerox', name=c_vsh), row=1, col=i)
+                        if c_phit:
+                            fig_log.add_trace(go.Scatter(x=df[c_phit], y=df["DEPTH"], line=dict(color='teal', width=1), name=c_phit), row=1, col=i)
                         fig_log.update_xaxes(range=[0, 1], row=1, col=i)
                 
                 fig_log.update_yaxes(autorange="reversed", title_text="Depth")
@@ -112,7 +158,6 @@ with tab_wells:
                 fig.update_layout(height=600)
                 fig.update_xaxes(range=[-0.05, 0.60])
                 fig.update_yaxes(autorange="reversed", range=[3.0, 1.8])
-                
                 minerals = {"Quartz": (0.0, 2.65), "Calcite": (0.0, 2.71), "Dolomite": (0.02, 2.87)}
                 for name, (nphi, rhob) in minerals.items():
                     fig.add_annotation(x=nphi, y=rhob, text=name, showarrow=True, arrowhead=2)
@@ -135,9 +180,9 @@ with tab_wells:
 
         # 4. AI vs RC Plot
         with wt4:
-            st.subheader("Acoustic Impedance & Reflection Coefficient (Synthetic Seismogram Preview)")
+            st.subheader("Acoustic Impedance & Reflection Coefficient")
             if c_ai and c_rc:
-                fig = make_subplots(rows=1, cols=2, shared_yaxes=True, subplot_titles=("Acoustic Impedance", "Reflection Coefficient (Wiggle)"))
+                fig = make_subplots(rows=1, cols=2, shared_yaxes=True, subplot_titles=("Acoustic Impedance", "Reflection Coefficient"))
                 fig.add_trace(go.Scatter(x=df[c_ai], y=df["DEPTH"], line=dict(color='blue')), row=1, col=1)
                 fig.add_trace(go.Scatter(x=df[c_rc], y=df["DEPTH"], line=dict(color='black'), fill='tozerox'), row=1, col=2)
                 fig.update_xaxes(range=[-0.3, 0.3], row=1, col=2)
@@ -147,17 +192,17 @@ with tab_wells:
             else:
                 st.warning("AI and RC curves required.")
 
-        # 5. CUSTOM INTERACTIVE CROSSPLOT (AB-Blue Style)
+        # 5. CUSTOM INTERACTIVE CROSSPLOT
         with wt5:
-            st.subheader("Interactive Custom Crossplot")
+            st.subheader("Interactive Custom Crossplot (AB-Blue Style)")
             cols = list(df.columns)
             c1, c2, c3 = st.columns(3)
-            with c1: x_axis = st.selectbox("X-Axis", cols, index=cols.index(c_nphi) if c_nphi in cols else 0)
-            with c2: y_axis = st.selectbox("Y-Axis", cols, index=cols.index(c_rhob) if c_rhob in cols else 0)
-            with c3: z_axis = st.selectbox("Color-Code", cols, index=cols.index(c_gr) if c_gr in cols else 0)
+            with c1: x_ax = st.selectbox("X-Axis", cols, index=cols.index(c_nphi) if c_nphi in cols else 0)
+            with c2: y_ax = st.selectbox("Y-Axis", cols, index=cols.index(c_rhob) if c_rhob in cols else 0)
+            with c3: z_ax = st.selectbox("Color-Code", cols, index=cols.index(c_gr) if c_gr in cols else 0)
             
-            fig = px.scatter(df, x=x_axis, y=y_axis, color=z_axis, color_continuous_scale="jet")
-            fig.update_layout(height=600, title=f"{x_axis} vs {y_axis} coded by {z_axis}")
+            fig = px.scatter(df, x=x_ax, y=y_ax, color=z_ax, color_continuous_scale="jet")
+            fig.update_layout(height=600, title=f"{x_ax} vs {y_ax} coded by {z_ax}")
             st.plotly_chart(fig, use_container_width=True)
 
         # 6. Static High-Def Composite
@@ -167,31 +212,11 @@ with tab_wells:
             if os.path.exists(img_path):
                 st.image(img_path, use_container_width=True)
             else:
-                st.error(f"Image not found at {img_path}.")
+                st.error(f"Image not found at {img_path}. Please run the pipeline.")
 
 # ==========================================
 # TAB 2: SEISMIC DATA
 # ==========================================
-# ==========================================
-# TAB 2: SEISMIC DATA
-# ==========================================
-@st.cache_data
-def load_seismic_cube(file_path):
-    try:
-        with segyio.open(file_path, ignore_geometry=True) as f:
-            data = segyio.tools.cube(f)
-            samples = f.samples
-            # Attempt to get geometry
-            try:
-                with segyio.open(file_path) as f_geom:
-                    inlines = f_geom.ilines
-                    xlines = f_geom.xlines
-                    return data, samples, inlines, xlines
-            except:
-                return data, samples, np.arange(data.shape[0]), np.arange(data.shape[1])
-    except Exception as e:
-        return None, str(e), None, None
-
 with tab_seismic:
     manifest_path = "outputs/data/pipeline_manifest.json"
     if os.path.exists(manifest_path):
@@ -203,7 +228,6 @@ with tab_seismic:
             st.warning("No SEGY files found.")
         else:
             selected_segy = st.selectbox("Select Seismic Cube", segy_files)
-            
             cube, samples, inlines, xlines = load_seismic_cube(selected_segy)
             
             if cube is None:
@@ -213,7 +237,6 @@ with tab_seismic:
                 s1, s2 = st.columns([1, 4])
                 with s1:
                     direction = st.radio("Slicing Direction", ["Inline", "Crossline", "Time-Slice"])
-                    
                     if direction == "Inline":
                         idx = st.slider("Inline Index", 0, cube.shape[0]-1, cube.shape[0]//2)
                         slice_data = cube[idx, :, :].T
@@ -226,146 +249,41 @@ with tab_seismic:
                         idx = st.slider("Time Sample", 0, cube.shape[2]-1, cube.shape[2]//2)
                         slice_data = cube[:, :, idx].T
                         xlabel, ylabel = "Inline", "Crossline"
-                        
+                    
                     cmap = st.selectbox("Colormap", ["RdBu", "seismic", "jet", "gray", "Viridis"])
-                    contrast = st.slider("Contrast", 0.1, 5.0, 1.0)
+                    contrast = st.slider("Contrast Level", 0.1, 5.0, 1.0)
                 
                 with s2:
                     v_max = np.percentile(np.abs(slice_data), 98) / contrast
-                    fig = px.imshow(slice_data, 
-                                   color_continuous_scale=cmap, 
-                                   aspect='auto',
+                    fig = px.imshow(slice_data, color_continuous_scale=cmap, aspect='auto',
                                    zmin=-v_max, zmax=v_max if cmap in ["RdBu", "seismic"] else None,
                                    labels=dict(x=xlabel, y=ylabel, color="Amplitude"))
-                    
                     fig.update_layout(height=700, margin=dict(l=0, r=0, t=30, b=0))
                     st.plotly_chart(fig, use_container_width=True)
 
 # ==========================================
 # TAB 3: PROJECT METADATA & EVENTS
 # ==========================================
-    inline_xline = [[189,193], [9,13], [9,21], [5,21]]
-    state = False
-    for k, byte_loc in enumerate(inline_xline):
-        try:
-            with segyio.open(filepath_in, iline=byte_loc[0], xline=byte_loc[1], ignore_geometry=False) as f:
-                seismic_data = segyio.tools.cube(f)
-                n_traces = f.tracecount    
-                tr = f.attributes(segyio.TraceField.TraceNumber)[-1]
-                if not isinstance(tr, int):
-                    tr = f.attributes(segyio.TraceField.TraceNumber)[-2] + 1
-                tr = int(tr[0])
-                twt = f.samples
-                sample_rate = segyio.tools.dt(f) / 1000
-                Inline_3D, Crossline_3D = [], []
-                for i in range(n_traces):
-                    Inline_3D.append(f.attributes(segyio.TraceField.INLINE_3D)[i])
-                    Crossline_3D.append(f.attributes(segyio.TraceField.CROSSLINE_3D)[i])
-                inline3d = np.unique(Inline_3D)
-                crossline3d = np.unique(Crossline_3D)
-                state = True
-        except:
-            pass
-        if state:
-            data_type = 'Post-stack 3D' if len(seismic_data.shape) == 3 and seismic_data.shape[0] != 1 else 'Post-stack 2D'
-            inline_number = inline3d
-            xline_number = crossline3d
-            diff_inline = np.diff(inline_number)[0] if len(inline_number)>1 else 1
-            diff_xline = np.diff(xline_number)[0] if len(xline_number)>1 else 1
-            if data_type == 'Post-stack 2D':
-                inline, cdp, samples = seismic_data.shape if len(seismic_data.shape)==3 else (1, n_traces, len(twt))
-                data_display = seismic_data.reshape(cdp, samples).T
-            else:
-                inline, cdp, samples = seismic_data.shape
-                data_display = seismic_data.reshape(inline, cdp, samples).T
-            return data_display, data_type, twt, inline_number, xline_number, diff_inline, diff_xline, sample_rate
-    with segyio.open(filepath_in, ignore_geometry=True) as f:
-        data_display = f.trace.raw[:].T
-        return data_display, 'Post-stack 2D', f.samples, [1], np.arange(f.tracecount), 1, 1, 1
-
-with tab_seismic:
-    segy_files = []
-    if os.path.exists("../extracted_zips"):
-        for root, dirs, files in os.walk("../extracted_zips"):
-            for file in files:
-                if file.endswith((".sgy", ".segy")):
-                    segy_files.append(os.path.join(root, file))
-                    
-    if not segy_files:
-        st.info("No SEGY files currently available.")
-    else:
-        selected_segy = st.selectbox("Select SEGY File", segy_files)
-        try:
-            data_display, data_type, twt, inline_number, xline_number, diff_inline, diff_xline, sample_rate = identify_seismic_data_parameters(selected_segy)
-            
-            sc1, sc2 = st.columns([1, 2])
-            sc1.metric("Data Type", data_type)
-            sc2.metric("Dimensions", f"{data_display.shape}")
-            
-            if data_type == 'Post-stack 3D':
-                slice_type = st.radio("Select Slice View", ["Inline", "Crossline", "Time-Slice"], horizontal=True)
-                if slice_type == "Inline":
-                    inline_val = st.slider("Inline Number", int(min(inline_number)), int(max(inline_number)), int(np.median(inline_number)), step=int(diff_inline))
-                    idx = np.where(inline_number == inline_val)[0][0]
-                    slice_data = data_display[:, :, idx]
-                    x_range, y_range = [min(xline_number), max(xline_number)], [max(twt), min(twt)]
-                    xlabel, ylabel = "Crossline No.", "Time (ms)"
-                elif slice_type == "Crossline":
-                    xline_val = st.slider("Crossline Number", int(min(xline_number)), int(max(xline_number)), int(np.median(xline_number)), step=int(diff_xline))
-                    idx = np.where(xline_number == xline_val)[0][0]
-                    slice_data = data_display[:, idx, :]
-                    x_range, y_range = [min(inline_number), max(inline_number)], [max(twt), min(twt)]
-                    xlabel, ylabel = "Inline No.", "Time (ms)"
-                elif slice_type == "Time-Slice":
-                    time_val = st.slider("TWT (ms)", int(min(twt)), int(max(twt)), int(np.median(twt)), step=int(sample_rate))
-                    idx = np.where(twt >= time_val)[0][0]
-                    slice_data = data_display[idx, :, :]
-                    x_range, y_range = [min(inline_number), max(inline_number)], [max(xline_number), min(xline_number)]
-                    xlabel, ylabel = "Inline No.", "Crossline No."
-            else:
-                slice_data = data_display
-                x_range, y_range = [0, slice_data.shape[1]], [max(twt), min(twt)]
-                xlabel, ylabel = "Trace No.", "Time (ms)"
-            
-            vmax = np.percentile(np.abs(slice_data), 95)
-            fig_s = px.imshow(slice_data, zmin=-vmax, zmax=vmax, color_continuous_scale='RdBu_r', aspect='auto',
-                              labels=dict(x=xlabel, y=ylabel, color="Amplitude"),
-                              x=np.linspace(x_range[0], x_range[1], slice_data.shape[1]),
-                              y=np.linspace(y_range[1], y_range[0], slice_data.shape[0]))
-            fig_s.update_layout(height=750, margin=dict(l=40, r=40, t=40, b=40))
-            if data_type != 'Post-stack 3D' or slice_type != "Time-Slice":
-                fig_s.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig_s, use_container_width=True)
-            
-            # Wiggle trace overlay option requested by prompt
-            if st.checkbox("Show Wiggle Trace Overlay (Performance Intensive)"):
-                st.warning("Wiggle traces are better suited for static plots due to high rendering load in browser.")
-        except Exception as e:
-            st.error(f"Error reading SEGY geometry: {e}")
-
-# ==========================================
-# TAB 3: PROJECT METADATA (.ev & .asc)
-# ==========================================
 with tab_metadata:
     st.header("Ancillary Project Data (.ev, .asc, .pet)")
     meta_files = []
     for root, dirs, files in os.walk("../"):
-        if "venv" in root or ".git" in root: continue
+        if "venv" in root or ".git" in root or "geoscience_pipeline" in root: continue
         for file in files:
             if file.endswith((".ev", ".asc", ".pet")):
                 meta_files.append(os.path.join(root, file))
+    
     if not meta_files:
         st.info("No Event or Grid metadata files found.")
     else:
-        selected_meta = st.selectbox("Select Metadata File to View", meta_files)
+        selected_meta = st.selectbox("Select Metadata File", meta_files)
         ext = os.path.splitext(selected_meta)[1].lower()
         if ext == ".ev":
             st.subheader("Well Events & Perforations")
             try:
                 ev_df = pd.read_csv(selected_meta, sep='\\t+', engine='python', header=None)
-                ev_df.columns = ["Well", "Date", "Event_Type", "Top_Depth", "Bottom_Depth"][:len(ev_df.columns)]
                 st.dataframe(ev_df, use_container_width=True)
-            except Exception:
+            except:
                 with open(selected_meta, 'r') as f: st.text(f.read())
         elif ext == ".asc":
             st.subheader("Seismic Master Grid Coordinates")
