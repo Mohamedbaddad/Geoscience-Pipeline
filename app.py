@@ -26,6 +26,12 @@ tab_wells, tab_seismic, tab_metadata = st.tabs(["📊 Well Logs & Petrophysics",
 # ==========================================
 # TAB 1: WELL LOGS & PETROPHYSICS
 # ==========================================
+
+def get_curve(df, aliases):
+    for a in aliases:
+        if a in df.columns: return a
+    return None
+
 with tab_wells:
     well_data_dir = "outputs/data"
     well_fig_dir = "outputs/figures"
@@ -39,6 +45,17 @@ with tab_wells:
         well_name = selected_well_file.replace("_processed.csv", "")
         df = pd.read_csv(os.path.join(well_data_dir, selected_well_file))
         
+        # Resolve aliases
+        c_gr = get_curve(df, ["GR", "GRAFM", "GR1BFM", "SGR"])
+        c_rt = get_curve(df, ["RT", "RPTHM", "RACLM", "RESD"])
+        c_rhob = get_curve(df, ["RHOB", "BDCM", "DEN", "ZDEN"])
+        c_nphi = get_curve(df, ["NPHI", "NPLM", "NEU", "TNPH"])
+        c_dt = get_curve(df, ["DT", "DTPM", "DTC"])
+        c_vsh = get_curve(df, ["VSH"])
+        c_phit = get_curve(df, ["PHIT_D", "PHIT"])
+        c_ai = get_curve(df, ["AI"])
+        c_rc = get_curve(df, ["RC"])
+        
         wt1, wt2, wt3, wt4, wt5 = st.tabs([
             "Multi-Track Log (Interactive)", 
             "RHOB vs NPHI Crossplot", 
@@ -51,11 +68,11 @@ with tab_wells:
         with wt1:
             st.subheader(f"Interactive Multi-Track Log: {well_name}")
             tracks = []
-            if "GR" in df.columns: tracks.append(("Gamma Ray", "GR"))
-            if "RT" in df.columns: tracks.append(("Resistivity", "RT"))
-            if "RHOB" in df.columns: tracks.append(("Density/Neutron", "RHOB"))
-            if "DT" in df.columns: tracks.append(("Sonic", "DT"))
-            if "VSH" in df.columns: tracks.append(("Computed", "VSH"))
+            if c_gr: tracks.append(("Gamma Ray", c_gr))
+            if c_rt: tracks.append(("Resistivity", c_rt))
+            if c_rhob: tracks.append(("Density/Neutron", c_rhob))
+            if c_dt: tracks.append(("Sonic", c_dt))
+            if c_vsh: tracks.append(("Computed", c_vsh))
             
             if not tracks:
                 st.warning("No standard curves found to plot.")
@@ -63,25 +80,24 @@ with tab_wells:
                 fig_log = make_subplots(rows=1, cols=len(tracks), shared_yaxes=True, horizontal_spacing=0.02, subplot_titles=[t[0] for t in tracks])
                 
                 for i, (name, curve) in enumerate(tracks, 1):
-                    if curve == "GR":
-                        fig_log.add_trace(go.Scatter(x=df["GR"], y=df["DEPTH"], line=dict(color='green', width=1), name="GR"), row=1, col=i)
+                    if curve == c_gr:
+                        fig_log.add_trace(go.Scatter(x=df[c_gr], y=df["DEPTH"], line=dict(color='green', width=1), name=c_gr), row=1, col=i)
                         fig_log.update_xaxes(range=[0, 150], row=1, col=i)
-                    elif curve == "RT":
-                        fig_log.add_trace(go.Scatter(x=df["RT"], y=df["DEPTH"], line=dict(color='black', width=1), name="RT"), row=1, col=i)
+                    elif curve == c_rt:
+                        fig_log.add_trace(go.Scatter(x=df[c_rt], y=df["DEPTH"], line=dict(color='black', width=1), name=c_rt), row=1, col=i)
                         fig_log.update_xaxes(type="log", range=[-1, 3], row=1, col=i)
-                    elif curve == "RHOB":
-                        fig_log.add_trace(go.Scatter(x=df["RHOB"], y=df["DEPTH"], line=dict(color='red', width=1), name="RHOB"), row=1, col=i)
+                    elif curve == c_rhob:
+                        fig_log.add_trace(go.Scatter(x=df[c_rhob], y=df["DEPTH"], line=dict(color='red', width=1), name=c_rhob), row=1, col=i)
                         fig_log.update_xaxes(range=[1.65, 2.65], row=1, col=i)
-                        if "NPHI" in df.columns:
-                            # Note: Plotly secondary X axes in subplots is limited, using secondary trace on same axis normalized for visual
-                            pass
-                    elif curve == "DT":
-                        fig_log.add_trace(go.Scatter(x=df["DT"], y=df["DEPTH"], line=dict(color='purple', width=1), name="DT"), row=1, col=i)
+                        if c_nphi:
+                            pass # simplified
+                    elif curve == c_dt:
+                        fig_log.add_trace(go.Scatter(x=df[c_dt], y=df["DEPTH"], line=dict(color='purple', width=1), name=c_dt), row=1, col=i)
                         fig_log.update_xaxes(range=[140, 40], row=1, col=i)
-                    elif curve == "VSH":
-                        fig_log.add_trace(go.Scatter(x=df["VSH"], y=df["DEPTH"], line=dict(color='saddlebrown', width=1), fill='tozerox', name="VSH"), row=1, col=i)
-                        if "PHIT_D" in df.columns:
-                            fig_log.add_trace(go.Scatter(x=df["PHIT_D"], y=df["DEPTH"], line=dict(color='teal', width=1), name="PHIT_D"), row=1, col=i)
+                    elif curve == c_vsh:
+                        fig_log.add_trace(go.Scatter(x=df[c_vsh], y=df["DEPTH"], line=dict(color='saddlebrown', width=1), fill='tozerox', name=c_vsh), row=1, col=i)
+                        if c_phit:
+                            fig_log.add_trace(go.Scatter(x=df[c_phit], y=df["DEPTH"], line=dict(color='teal', width=1), name=c_phit), row=1, col=i)
                         fig_log.update_xaxes(range=[0, 1], row=1, col=i)
                 
                 fig_log.update_yaxes(autorange="reversed", title_text="Depth")
@@ -91,14 +107,13 @@ with tab_wells:
         # 2. RHOB vs NPHI
         with wt2:
             st.subheader("Density-Neutron Crossplot (Lithology & Fluid ID)")
-            if "RHOB" in df.columns and "NPHI" in df.columns:
-                color_col = "GR" if "GR" in df.columns else "DEPTH"
-                fig = px.scatter(df, x="NPHI", y="RHOB", color=color_col, color_continuous_scale="RdYlGn_r")
+            if c_rhob and c_nphi:
+                color_col = c_gr if c_gr else "DEPTH"
+                fig = px.scatter(df, x=c_nphi, y=c_rhob, color=color_col, color_continuous_scale="RdYlGn_r")
                 fig.update_layout(height=600)
                 fig.update_xaxes(range=[-0.05, 0.60])
                 fig.update_yaxes(autorange="reversed", range=[3.0, 1.8])
                 
-                # Add mineral points as annotations
                 minerals = {"Quartz": (0.0, 2.65), "Calcite": (0.0, 2.71), "Dolomite": (0.02, 2.87)}
                 for name, (nphi, rhob) in minerals.items():
                     fig.add_annotation(x=nphi, y=rhob, text=name, showarrow=True, arrowhead=2)
@@ -109,13 +124,12 @@ with tab_wells:
         # 3. PHIT vs RT Crossplot
         with wt3:
             st.subheader("Porosity vs Resistivity (Reservoir Quality)")
-            if "PHIT_D" in df.columns and "RT" in df.columns:
-                fig = px.scatter(df, x="PHIT_D", y="RT", color="DEPTH", color_continuous_scale="Viridis", log_y=True)
+            if c_phit and c_rt:
+                fig = px.scatter(df, x=c_phit, y=c_rt, color="DEPTH", color_continuous_scale="Viridis", log_y=True)
                 fig.update_layout(height=600)
-                # Pay zone shading
-                fig.add_vrect(x0=0.10, x1=max(df["PHIT_D"].max(), 0.15), fillcolor="green", opacity=0.1, layer="below", line_width=0)
-                fig.add_hrect(y0=10, y1=max(df["RT"].max(), 100), fillcolor="green", opacity=0.1, layer="below", line_width=0)
-                fig.add_annotation(x=df["PHIT_D"].max(), y=np.log10(max(df["RT"].max(), 10)), text="Potential Pay Zone", showarrow=False, font=dict(color="green", size=14))
+                fig.add_vrect(x0=0.10, x1=max(df[c_phit].max(), 0.15), fillcolor="green", opacity=0.1, layer="below", line_width=0)
+                fig.add_hrect(y0=10, y1=max(df[c_rt].max(), 100), fillcolor="green", opacity=0.1, layer="below", line_width=0)
+                fig.add_annotation(x=df[c_phit].max(), y=np.log10(max(df[c_rt].max(), 10)), text="Potential Pay Zone", showarrow=False, font=dict(color="green", size=14))
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("PHIT_D and RT curves required.")
@@ -123,12 +137,10 @@ with tab_wells:
         # 4. AI vs RC Plot
         with wt4:
             st.subheader("Acoustic Impedance & Reflection Coefficient (Synthetic Seismogram Preview)")
-            if "AI" in df.columns and "RC" in df.columns:
+            if c_ai and c_rc:
                 fig = make_subplots(rows=1, cols=2, shared_yaxes=True, subplot_titles=("Acoustic Impedance", "Reflection Coefficient (Wiggle)"))
-                fig.add_trace(go.Scatter(x=df["AI"], y=df["DEPTH"], line=dict(color='blue')), row=1, col=1)
-                
-                # Wiggle trace
-                fig.add_trace(go.Scatter(x=df["RC"], y=df["DEPTH"], line=dict(color='black'), fill='tozerox'), row=1, col=2)
+                fig.add_trace(go.Scatter(x=df[c_ai], y=df["DEPTH"], line=dict(color='blue')), row=1, col=1)
+                fig.add_trace(go.Scatter(x=df[c_rc], y=df["DEPTH"], line=dict(color='black'), fill='tozerox'), row=1, col=2)
                 fig.update_xaxes(range=[-0.3, 0.3], row=1, col=2)
                 fig.update_yaxes(autorange="reversed")
                 fig.update_layout(height=800, showlegend=False)
@@ -141,7 +153,7 @@ with tab_wells:
             st.markdown(f"**Full Composite Log for {well_name}**")
             img_path = os.path.join(well_fig_dir, f"{well_name}_multitrack.png")
             if os.path.exists(img_path):
-                st.image(img_path, use_column_width=True)
+                st.image(img_path, use_container_width=True)
             else:
                 st.error(f"Image not found at {img_path}. Did the pipeline run fully?")
 
