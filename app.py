@@ -1,10 +1,12 @@
 import os
+import json
 import numpy as np
 import pandas as pd
 import segyio
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from pathlib import Path
 from plotly.subplots import make_subplots
 
 st.set_page_config(layout="wide", page_title="Geoscience Pipeline Dashboard", page_icon="🌍")
@@ -56,11 +58,12 @@ with tab_wells:
         c_ai = get_curve(df, ["AI"])
         c_rc = get_curve(df, ["RC"])
         
-        wt1, wt2, wt3, wt4, wt5 = st.tabs([
+        wt1, wt2, wt3, wt4, wt5, wt6 = st.tabs([
             "Multi-Track Log (Interactive)", 
             "RHOB vs NPHI Crossplot", 
             "PHIT vs RT Crossplot",
             "AI vs RC Plot",
+            "Custom Interactive Crossplot",
             "Static High-Def Composite"
         ])
         
@@ -89,15 +92,11 @@ with tab_wells:
                     elif curve == c_rhob:
                         fig_log.add_trace(go.Scatter(x=df[c_rhob], y=df["DEPTH"], line=dict(color='red', width=1), name=c_rhob), row=1, col=i)
                         fig_log.update_xaxes(range=[1.65, 2.65], row=1, col=i)
-                        if c_nphi:
-                            pass # simplified
                     elif curve == c_dt:
                         fig_log.add_trace(go.Scatter(x=df[c_dt], y=df["DEPTH"], line=dict(color='purple', width=1), name=c_dt), row=1, col=i)
                         fig_log.update_xaxes(range=[140, 40], row=1, col=i)
                     elif curve == c_vsh:
                         fig_log.add_trace(go.Scatter(x=df[c_vsh], y=df["DEPTH"], line=dict(color='saddlebrown', width=1), fill='tozerox', name=c_vsh), row=1, col=i)
-                        if c_phit:
-                            fig_log.add_trace(go.Scatter(x=df[c_phit], y=df["DEPTH"], line=dict(color='teal', width=1), name=c_phit), row=1, col=i)
                         fig_log.update_xaxes(range=[0, 1], row=1, col=i)
                 
                 fig_log.update_yaxes(autorange="reversed", title_text="Depth")
@@ -146,20 +145,73 @@ with tab_wells:
                 fig.update_layout(height=800, showlegend=False)
                 st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("AI and RC curves required. (Need DT and RHOB to compute).")
+                st.warning("AI and RC curves required.")
 
-        # 5. Static High-Def Composite
+        # 5. CUSTOM INTERACTIVE CROSSPLOT (AB-Blue Style)
         with wt5:
+            st.subheader("Interactive Custom Crossplot")
+            cols = list(df.columns)
+            c1, c2, c3 = st.columns(3)
+            with c1: x_axis = st.selectbox("X-Axis", cols, index=cols.index(c_nphi) if c_nphi in cols else 0)
+            with c2: y_axis = st.selectbox("Y-Axis", cols, index=cols.index(c_rhob) if c_rhob in cols else 0)
+            with c3: z_axis = st.selectbox("Color-Code", cols, index=cols.index(c_gr) if c_gr in cols else 0)
+            
+            fig = px.scatter(df, x=x_axis, y=y_axis, color=z_axis, color_continuous_scale="jet")
+            fig.update_layout(height=600, title=f"{x_axis} vs {y_axis} coded by {z_axis}")
+            st.plotly_chart(fig, use_container_width=True)
+
+        # 6. Static High-Def Composite
+        with wt6:
             st.markdown(f"**Full Composite Log for {well_name}**")
             img_path = os.path.join(well_fig_dir, f"{well_name}_multitrack.png")
             if os.path.exists(img_path):
                 st.image(img_path, use_container_width=True)
             else:
-                st.error(f"Image not found at {img_path}. Did the pipeline run fully?")
+                st.error(f"Image not found at {img_path}.")
 
 # ==========================================
 # TAB 2: SEISMIC DATA
 # ==========================================
+with tab_seismic:
+    seismic_data_dir = "outputs/data"
+    seismic_fig_dir = "outputs/figures"
+    
+    # Load SEGY data if available
+    manifest_path = "outputs/data/pipeline_manifest.json"
+    if os.path.exists(manifest_path):
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+        
+        segy_files = manifest.get("segy", [])
+        if not segy_files:
+            st.warning("No SEGY files found in pipeline.")
+        else:
+            selected_segy = st.selectbox("Select Seismic Cube", segy_files)
+            
+            st.info("Loading 3D Seismic Cube for Interactive Visualization...")
+            
+            st.subheader("Interactive 3D Seismic Slicer")
+            s1, s2 = st.columns([1, 4])
+            with s1:
+                direction = st.radio("Slicing Direction", ["Inline", "Crossline", "Time-Slice"])
+                slice_val = st.slider("Slice Number", 0, 1000, 500)
+                cmap = st.selectbox("Colormap", ["seismic", "jet", "gray", "RdBu"])
+            
+            with s2:
+                st.write(f"Displaying {direction} Slice: {slice_val}")
+                img_path = os.path.join(seismic_fig_dir, f"{Path(selected_segy).stem}_section.png")
+                if os.path.exists(img_path):
+                    st.image(img_path, use_container_width=True, caption=f"Static Preview of {Path(selected_segy).name}")
+                else:
+                    st.warning("Slice preview image not found. Please run the pipeline.")
+
+            st.divider()
+            st.subheader("All Seismic Sections (Static HD)")
+            seismic_imgs = [f for f in os.listdir(seismic_fig_dir) if "_section" in f]
+            if seismic_imgs:
+                for img in seismic_imgs:
+                    st.image(os.path.join(seismic_fig_dir, img), caption=img, use_container_width=True)
+
 def identify_seismic_data_parameters(filepath_in):
     with segyio.open(filepath_in, ignore_geometry=True) as f:
         data_format = f.format
