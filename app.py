@@ -62,17 +62,18 @@ def get_curve(df, aliases):
 @st.cache_data
 def load_seismic_cube(file_path):
     try:
-        with segyio.open(file_path, ignore_geometry=True) as f:
-            data = segyio.tools.cube(f)
-            samples = f.samples
-            # Attempt to get geometry
-            try:
-                with segyio.open(file_path) as f_geom:
-                    inlines = f_geom.ilines
-                    xlines = f_geom.xlines
-                    return data, samples, inlines, xlines
-            except:
-                return data, samples, np.arange(data.shape[0]), np.arange(data.shape[1])
+        # Try loading as 3D Cube first
+        try:
+            with segyio.open(file_path, ignore_geometry=False) as f:
+                data = segyio.tools.cube(f)
+                samples = f.samples
+                return data, samples, f.ilines, f.xlines
+        except:
+            # Fallback for 2D or non-standard 3D
+            with segyio.open(file_path, ignore_geometry=True) as f:
+                traces = f.trace.raw[:]
+                data = traces.reshape(1, f.tracecount, len(f.samples))
+                return data, f.samples, [0], np.arange(f.tracecount)
     except Exception as e:
         return None, str(e), None, None
 
