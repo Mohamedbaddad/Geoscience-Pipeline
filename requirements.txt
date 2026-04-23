@@ -1,0 +1,10 @@
+lasio
+welly
+segyio
+pandas
+numpy
+matplotlib
+scipy
+scikit-learn
+tqdm
+chardet
