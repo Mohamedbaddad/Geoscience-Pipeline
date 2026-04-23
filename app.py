@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import segyio
 import streamlit as st
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
+import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide", page_title="High-Def Interactive Geoscience Visualizer")
 
@@ -27,7 +27,6 @@ tab1, tab2 = st.tabs(["Well Logs (LAS) Interactive Visualization", "Seismic Data
 with tab1:
     st.header("Interactive Well Log Cross-Plots")
     
-    # Load available processed well data
     well_data_dir = "outputs/data"
     if os.path.exists(well_data_dir):
         well_files = [f for f in os.listdir(well_data_dir) if f.endswith(".csv")]
@@ -50,29 +49,31 @@ with tab1:
             
         with col2:
             st.subheader(f"High-Def Crossplot: {y_ax} vs {x_ax}")
-            fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
             
-            # Use high-def scatter with edgecolors
-            scatter = ax.scatter(df[x_ax], df[y_ax], c=df[c_ax], cmap='nipy_spectral', 
-                                 edgecolors='black', linewidths=0.2, alpha=0.8, s=40)
+            # Use Plotly Express for scatter
+            fig = px.scatter(df, x=x_ax, y=y_ax, color=c_ax, color_continuous_scale='Turbo',
+                             title=f"{y_ax} vs {x_ax} colored by {c_ax}")
             
-            # Add colorbar
-            cbar = plt.colorbar(scatter, ax=ax, pad=0.02)
-            cbar.set_label(c_ax, fontsize=12, weight='bold')
+            fig.update_traces(marker=dict(size=6, line=dict(width=0.5, color='black')), selector=dict(mode='markers'))
             
-            # High-def styling
-            ax.set_xlabel(x_ax, fontsize=12, weight='bold')
-            ax.set_ylabel(y_ax, fontsize=12, weight='bold')
-            ax.grid(True, linestyle='--', alpha=0.7)
-            ax.set_facecolor('#f0f0f0')
+            # High-def styling & resizability
+            fig.update_layout(
+                plot_bgcolor='#f0f0f0',
+                paper_bgcolor='#ffffff',
+                xaxis=dict(showgrid=True, griddash='dash', gridcolor='lightgrey', zeroline=False),
+                yaxis=dict(showgrid=True, griddash='dash', gridcolor='lightgrey', zeroline=False),
+                height=700,
+                autosize=True,
+                margin=dict(l=40, r=40, t=40, b=40)
+            )
             
             # Industry standards for NPHI and RHOB
             if x_ax == "NPHI":
-                ax.set_xlim(0.45, -0.15)
+                fig.update_xaxes(autorange="reversed", range=[0.45, -0.15])
             if y_ax == "RHOB":
-                ax.set_ylim(3.0, 1.9)
+                fig.update_yaxes(autorange="reversed", range=[3.0, 1.9])
                 
-            st.pyplot(fig, use_container_width=False)
+            st.plotly_chart(fig, use_container_width=True)
 
 
 # ==========================================
@@ -157,46 +158,57 @@ with tab2:
                     inline_val = st.slider("Select Inline", int(min(inline_number)), int(max(inline_number)), int(np.median(inline_number)), step=int(diff_inline))
                     idx = np.where(inline_number == inline_val)[0][0]
                     slice_data = data_display[:, :, idx]
-                    extent = [min(xline_number), max(xline_number), max(twt), min(twt)]
+                    x_range = [min(xline_number), max(xline_number)]
+                    y_range = [max(twt), min(twt)]
                     xlabel, ylabel = "Crossline No.", "Time (ms)"
                     
                 elif slice_type == "Crossline":
                     xline_val = st.slider("Select Crossline", int(min(xline_number)), int(max(xline_number)), int(np.median(xline_number)), step=int(diff_xline))
                     idx = np.where(xline_number == xline_val)[0][0]
                     slice_data = data_display[:, idx, :]
-                    extent = [min(inline_number), max(inline_number), max(twt), min(twt)]
+                    x_range = [min(inline_number), max(inline_number)]
+                    y_range = [max(twt), min(twt)]
                     xlabel, ylabel = "Inline No.", "Time (ms)"
                     
                 elif slice_type == "Time-Slice":
                     time_val = st.slider("Select TWT (ms)", int(min(twt)), int(max(twt)), int(np.median(twt)), step=int(sample_rate))
                     idx = np.where(twt >= time_val)[0][0]
                     slice_data = data_display[idx, :, :]
-                    extent = [min(inline_number), max(inline_number), max(xline_number), min(xline_number)]
+                    x_range = [min(inline_number), max(inline_number)]
+                    y_range = [max(xline_number), min(xline_number)]
                     xlabel, ylabel = "Inline No.", "Crossline No."
             else:
                 st.write("Displaying 2D Seismic Section")
                 slice_data = data_display
-                extent = [0, slice_data.shape[1], max(twt), min(twt)]
+                x_range = [0, slice_data.shape[1]]
+                y_range = [max(twt), min(twt)]
                 xlabel, ylabel = "Trace No.", "Time (ms)"
             
-            # --- HIGH DEF PLOTTING ---
-            fig_s, ax_s = plt.subplots(figsize=(14, 8), dpi=150)
-            
-            # 95th percentile clipping for high contrast
+            # --- HIGH DEF PLOTLY PLOTTING ---
             vmax = np.percentile(np.abs(slice_data), 95)
             
-            # High-Def interpolation and colormap
-            im = ax_s.imshow(slice_data, cmap='seismic', aspect='auto', interpolation='bicubic',
-                             vmin=-vmax, vmax=vmax, extent=extent)
+            # Create Plotly Image
+            fig_s = px.imshow(slice_data, 
+                              zmin=-vmax, zmax=vmax, 
+                              color_continuous_scale='RdBu_r', 
+                              aspect='auto',
+                              labels=dict(x=xlabel, y=ylabel, color="Amplitude"),
+                              x=np.linspace(x_range[0], x_range[1], slice_data.shape[1]),
+                              y=np.linspace(y_range[1], y_range[0], slice_data.shape[0]))
             
-            cbar = plt.colorbar(im, ax=ax_s, pad=0.01)
-            cbar.set_label('Amplitude', rotation=270, labelpad=15, weight='bold')
+            fig_s.update_layout(
+                title=f"High-Definition Seismic Visualization ({os.path.basename(selected_segy)})",
+                height=800,
+                autosize=True,
+                xaxis_title=xlabel,
+                yaxis_title=ylabel,
+                margin=dict(l=40, r=40, t=60, b=40)
+            )
+            # Y-axis should be inverted for time/depth
+            if data_type != 'Post-stack 3D' or slice_type != "Time-Slice":
+                fig_s.update_yaxes(autorange="reversed")
             
-            ax_s.set_xlabel(xlabel, fontsize=12, weight='bold')
-            ax_s.set_ylabel(ylabel, fontsize=12, weight='bold')
-            ax_s.set_title(f"High-Definition Seismic Visualization ({os.path.basename(selected_segy)})", fontsize=14, weight='bold')
-            
-            st.pyplot(fig_s, use_container_width=False)
+            st.plotly_chart(fig_s, use_container_width=True)
             
         except Exception as e:
             st.error(f"Error reading SEGY geometry: {e}. Some files require specialized byte mapping.")
