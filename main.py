@@ -115,7 +115,14 @@ def run_pipeline(input_directory: str):
             df = normalize_curve_names(df)
             df, qc_flags = apply_qc(df)
             df = compute_derived_logs(df)
-            wells[meta["well_name"]] = {"df": df, "meta": meta, "qc_flags": qc_flags}
+            well_name = meta["well_name"]
+            if well_name in wells:
+                # Merge if well already exists (e.g. Wireline + LWD)
+                wells[well_name]["df"] = pd.merge(wells[well_name]["df"], df, on="DEPTH", how="outer").sort_values("DEPTH")
+                wells[well_name]["qc_flags"] = pd.concat([wells[well_name]["qc_flags"], qc_flags], axis=1)
+                wells[well_name]["meta"].update(meta)
+            else:
+                wells[well_name] = {"df": df, "meta": meta, "qc_flags": qc_flags}
             log.info(f"LAS loaded: {meta['well_name']} | Curves: {list(df.columns)} | Rows: {len(df)}")
         except Exception as e:
             log.error(f"Failed to load LAS {las_path}: {e}")

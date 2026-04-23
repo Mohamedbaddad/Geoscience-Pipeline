@@ -546,3 +546,229 @@
 2026-04-23 19:51:01,353 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7a seismic xline 6654 left_section.png
 2026-04-23 19:51:01,709 [INFO] Exported processed well data → outputs/data/Cormoran-1_processed.csv
 2026-04-23 19:51:01,709 [INFO] Pipeline completed successfully.
+2026-04-23 21:44:04,583 [INFO] Pipeline started. Input directory: ../
+2026-04-23 21:44:04,584 [INFO] Skipped .lock file: ../model-for-partners-Dec-2006 (1).lock
+2026-04-23 21:44:04,584 [INFO] Skipped .lock file: ../model-for-partners-Dec-2006 (1)(1).lock
+2026-04-23 21:44:05,872 [INFO] Opening ../Cormoran1_Run5_DTC_slowness_3840-4410m_MD_171110.las as ascii and treating errors with "replace"
+2026-04-23 21:44:05,922 [INFO] The read substitutions ['run-on(-)']have been removed as this file appears to contain hyphens.
+2026-04-23 21:44:05,962 [INFO] Renamed curves: ['DTC->DT', 'GRAFM->GR']
+2026-04-23 21:44:05,996 [INFO] Curve completeness: {'DEPTH': 100.0, 'TVD': 98.18376068376068, 'DT': 97.00854700854701, 'TTC': 97.00854700854701, 'SVC': 96.7948717948718, 'GR': 100.0}
+2026-04-23 21:44:06,008 [INFO] LAS loaded: Cormoran-1 | Curves: ['DEPTH', 'TVD', 'DT', 'TTC', 'SVC', 'GR', 'VSH', 'RESERVOIR_FLAG'] | Rows: 1872
+2026-04-23 21:44:06,017 [INFO] Opening ../cormoran-1_Final-edited.las as ascii and treating errors with "replace"
+2026-04-23 21:44:07,552 [WARNING] Only engine='normal' can read wrapped files
+2026-04-23 21:44:09,299 [INFO] Renamed curves: ['DEN->RHOB', 'NEU->NPHI', 'PEF->PE']
+2026-04-23 21:44:09,378 [INFO] Curve completeness: {'DEPTH': 100.0, 'CALI': 41.84349911722576, 'RHOB': 41.8035244345248, 'DT': 41.75022485759019, 'GR': 80.9953695992538, 'NPHI': 41.69359405709717, 'PE': 41.8035244345248, 'DEP_RES': 82.57103834238316}
+2026-04-23 21:44:09,420 [INFO] LAS loaded: Cormoran-1 | Curves: ['DEPTH', 'CALI', 'RHOB', 'DT', 'GR', 'NPHI', 'PE', 'DEP_RES', 'VSH', 'PHIT_D', 'ND_CROSSOVER', 'RESERVOIR_FLAG', 'AI', 'RC'] | Rows: 30019
+2026-04-23 21:44:09,426 [INFO] Opening ../extracted_zips/Cormoran-1_GR_RES_DEN_NEU_SONIC_RM_3850m_4424m_MD_151110.las as ascii and treating errors with "replace"
+2026-04-23 21:44:09,554 [INFO] The read substitutions ['run-on(-)']have been removed as this file appears to contain hyphens.
+2026-04-23 21:44:10,000 [INFO] Renamed curves: ['GR1BFM->GR', 'RPTHM->RT', 'RACLM->RT', 'BDCFM->RHOB', 'BDCM->RHOB', 'DPEM->PE', 'NPLFM->NPHI', 'NPLM->NPHI', 'CALFM->CALI', 'DTPM->DT', 'GRAFM->GR', 'GR2AFM->GR', 'DTP4M->DT']
+2026-04-23 21:44:10,030 [ERROR] Failed to load LAS ../extracted_zips/Cormoran-1_GR_RES_DEN_NEU_SONIC_RM_3850m_4424m_MD_151110.las: Cannot set a DataFrame with multiple columns to the single column SPIKE_GR
+2026-04-23 21:44:10,037 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,039 [INFO] SEGY loaded: fig1-4a synthetic seismogram TVF.sgy | Traces: 10 | Samples: 2443 | dt: 2.0 ms
+2026-04-23 21:44:10,043 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,044 [INFO] SEGY loaded: fig1-7c1 wavelet 5-45Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,053 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,054 [INFO] SEGY loaded: fig1-7e seismic xline 6654 right.sgy | Traces: 32 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,063 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,064 [INFO] SEGY loaded: fig1-5a synthetic seismogram 5-90Hz.sgy | Traces: 10 | Samples: 2443 | dt: 2.0 ms
+2026-04-23 21:44:10,071 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,074 [INFO] SEGY loaded: fig1-6b synthetic seismogram TVF.sgy | Traces: 10 | Samples: 2443 | dt: 2.0 ms
+2026-04-23 21:44:10,086 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,088 [INFO] SEGY loaded: fig1-5c VSP corridor stack 5-90Hz.sgy | Traces: 10 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,117 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,119 [INFO] SEGY loaded: fig1-3 stacked Z component VSP.sgy | Traces: 152 | Samples: 5000 | dt: 1.0 ms
+2026-04-23 21:44:10,121 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,122 [INFO] SEGY loaded: fig1-6c2 wavelet 5-25Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,131 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,131 [INFO] SEGY loaded: fig1-4c VSP corridor stack TVF.sgy | Traces: 10 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,137 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,138 [INFO] SEGY loaded: fig1-7b synthetic seismogram TVF.sgy | Traces: 10 | Samples: 2443 | dt: 2.0 ms
+2026-04-23 21:44:10,143 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,145 [INFO] SEGY loaded: fig1-5b wavelet 5-90Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,167 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,168 [INFO] SEGY loaded: fig1-6a seismic inline 604 left.sgy | Traces: 32 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,170 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,171 [INFO] SEGY loaded: fig1-4b2 wavelet 5-25Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,186 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,188 [INFO] SEGY loaded: fig1-6e seismic inline 604 right.sgy | Traces: 32 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,210 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,213 [INFO] SEGY loaded: fig1-8 synthetic seismograms in seismic inline 604.sgy | Traces: 114 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,216 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,217 [INFO] SEGY loaded: fig1-7c2 wavelet 5-25Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,219 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,220 [INFO] SEGY loaded: fig1-6c1 wavelet 5-45Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,238 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,241 [INFO] SEGY loaded: fig1-10 VSP corridor stacks in seismic inline 604.sgy | Traces: 114 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,271 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,278 [INFO] SEGY loaded: fig1-4d rig source VSP TVF.sgy | Traces: 119 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,295 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,297 [INFO] SEGY loaded: fig1-11 VSP corridor stacks in seismic xline 6654.sgy | Traces: 114 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,304 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,305 [INFO] SEGY loaded: fig1-7d VSP corridor stack TVF.sgy | Traces: 10 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,308 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,309 [INFO] SEGY loaded: fig1-4b1 wavelet 5-45Hz.sgy | Traces: 1 | Samples: 180 | dt: 1.0 ms
+2026-04-23 21:44:10,329 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,331 [INFO] SEGY loaded: fig1-5d rig source VSP 5-90Hz.sgy | Traces: 119 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,344 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,346 [INFO] SEGY loaded: fig1-9 synthetic seismograms in seismic xline 6654.sgy | Traces: 114 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,351 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,352 [INFO] SEGY loaded: fig1-6d VSP corridor stack TVF.sgy | Traces: 10 | Samples: 6000 | dt: 1.0 ms
+2026-04-23 21:44:10,363 [INFO] Detected SEGY geometry: 2D
+2026-04-23 21:44:10,364 [INFO] SEGY loaded: fig1-7a seismic xline 6654 left.sgy | Traces: 32 | Samples: 1500 | dt: 4.0 ms
+2026-04-23 21:44:10,486 [INFO] TXT parsed: Cormoran-1ASCII Data las file.ASC.txt | Type: tabular_data
+2026-04-23 21:44:10,487 [INFO] TXT parsed: requirements.txt | Type: free_text
+2026-04-23 21:44:10,490 [WARNING] Failed to parse formation tops ../geoscience_pipeline/reports/pipeline_summary.txt: Expected 2 fields in line 7, saw 7
+2026-04-23 21:44:10,491 [INFO] TXT parsed: pipeline_summary.txt | Type: formation_tops
+2026-04-23 21:44:10,499 [WARNING] Failed to parse formation tops ../geoscience_pipeline/venv/share/jupyter/labextensions/jupyterlab-plotly/static/1.9daa5160b7fc741623bf.js.LICENSE.txt: Expected 4 fields in line 5, saw 12
+2026-04-23 21:44:10,500 [INFO] TXT parsed: 1.9daa5160b7fc741623bf.js.LICENSE.txt | Type: formation_tops
+2026-04-23 21:44:10,500 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,501 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,501 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,501 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,502 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,502 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,502 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,503 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,504 [INFO] TXT parsed: AUTHORS.txt | Type: free_text
+2026-04-23 21:44:10,504 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,505 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,506 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,507 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,508 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,509 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,509 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,510 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,511 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,511 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,512 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,512 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,513 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,513 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,514 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,514 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,515 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,515 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,517 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/scipy-1.17.1.dist-info/LICENSE.txt: ',' expected after '"'
+2026-04-23 21:44:10,517 [INFO] TXT parsed: LICENSE.txt | Type: tabular_data
+2026-04-23 21:44:10,518 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,518 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,518 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,519 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,519 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,520 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,520 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,520 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,521 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,521 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,522 [INFO] TXT parsed: entry_points.txt | Type: free_text
+2026-04-23 21:44:10,523 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,524 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,525 [INFO] TXT parsed: top_level.txt | Type: free_text
+2026-04-23 21:44:10,526 [INFO] TXT parsed: japanese_utf8.txt | Type: free_text
+2026-04-23 21:44:10,526 [INFO] TXT parsed: COPYING_QHULL.txt | Type: free_text
+2026-04-23 21:44:10,527 [INFO] TXT parsed: pdist-seuclidean-ml.txt | Type: free_text
+2026-04-23 21:44:10,528 [INFO] TXT parsed: cdist-X1.txt | Type: free_text
+2026-04-23 21:44:10,531 [INFO] TXT parsed: pdist-chebyshev-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,535 [INFO] TXT parsed: pdist-cosine-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,536 [INFO] TXT parsed: pdist-chebyshev-ml.txt | Type: free_text
+2026-04-23 21:44:10,537 [INFO] TXT parsed: cdist-X2.txt | Type: free_text
+2026-04-23 21:44:10,538 [INFO] TXT parsed: pdist-boolean-inp.txt | Type: free_text
+2026-04-23 21:44:10,543 [INFO] TXT parsed: pdist-cityblock-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,544 [INFO] TXT parsed: iris.txt | Type: free_text
+2026-04-23 21:44:10,544 [INFO] TXT parsed: pdist-minkowski-3.2-ml.txt | Type: free_text
+2026-04-23 21:44:10,545 [INFO] TXT parsed: pdist-euclidean-ml.txt | Type: free_text
+2026-04-23 21:44:10,546 [INFO] TXT parsed: random-uint-data.txt | Type: free_text
+2026-04-23 21:44:10,547 [INFO] TXT parsed: pdist-correlation-ml.txt | Type: free_text
+2026-04-23 21:44:10,550 [INFO] TXT parsed: pdist-minkowski-5.8-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,554 [INFO] TXT parsed: pdist-euclidean-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,554 [INFO] TXT parsed: pdist-cosine-ml.txt | Type: free_text
+2026-04-23 21:44:10,556 [INFO] TXT parsed: random-double-data.txt | Type: free_text
+2026-04-23 21:44:10,557 [INFO] TXT parsed: pdist-cityblock-ml.txt | Type: free_text
+2026-04-23 21:44:10,559 [INFO] TXT parsed: pdist-double-inp.txt | Type: free_text
+2026-04-23 21:44:10,560 [INFO] TXT parsed: pdist-jensenshannon-ml.txt | Type: free_text
+2026-04-23 21:44:10,564 [INFO] TXT parsed: pdist-correlation-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,565 [INFO] TXT parsed: pdist-jaccard-ml.txt | Type: free_text
+2026-04-23 21:44:10,569 [INFO] TXT parsed: pdist-jensenshannon-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,570 [INFO] TXT parsed: random-int-data.txt | Type: free_text
+2026-04-23 21:44:10,571 [WARNING] Failed to parse formation tops ../geoscience_pipeline/venv/lib/python3.12/site-packages/scipy/spatial/tests/data/selfdual-4d-polytope.txt: Expected 9 fields in line 4, saw 10
+2026-04-23 21:44:10,571 [INFO] TXT parsed: selfdual-4d-polytope.txt | Type: formation_tops
+2026-04-23 21:44:10,573 [INFO] TXT parsed: random-bool-data.txt | Type: free_text
+2026-04-23 21:44:10,577 [INFO] TXT parsed: pdist-minkowski-3.2-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,578 [INFO] TXT parsed: pdist-spearman-ml.txt | Type: free_text
+2026-04-23 21:44:10,579 [INFO] TXT parsed: pdist-hamming-ml.txt | Type: free_text
+2026-04-23 21:44:10,582 [INFO] TXT parsed: pdist-seuclidean-ml-iris.txt | Type: free_text
+2026-04-23 21:44:10,582 [INFO] TXT parsed: label_inputs.txt | Type: free_text
+2026-04-23 21:44:10,583 [INFO] TXT parsed: label_strels.txt | Type: free_text
+2026-04-23 21:44:10,583 [INFO] TXT parsed: label_results.txt | Type: free_text
+2026-04-23 21:44:10,584 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,584 [INFO] TXT parsed: NOTICE.txt | Type: free_text
+2026-04-23 21:44:10,586 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/pyarrow-24.0.0.dist-info/licenses/LICENSE.txt: Could not determine delimiter
+2026-04-23 21:44:10,587 [INFO] TXT parsed: LICENSE.txt | Type: tabular_data
+2026-04-23 21:44:10,588 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,596 [INFO] TXT parsed: vendor.txt | Type: formation_tops
+2026-04-23 21:44:10,597 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,597 [INFO] TXT parsed: static_foo.txt | Type: free_text
+2026-04-23 21:44:10,598 [INFO] TXT parsed: robots.txt | Type: free_text
+2026-04-23 21:44:10,599 [WARNING] Failed to parse formation tops ../geoscience_pipeline/venv/lib/python3.12/site-packages/pyarrow/src/arrow/python/CMakeLists.txt: ' ' expected after '"'
+2026-04-23 21:44:10,600 [INFO] TXT parsed: CMakeLists.txt | Type: formation_tops
+2026-04-23 21:44:10,601 [WARNING] Failed to parse formation tops ../geoscience_pipeline/venv/lib/python3.12/site-packages/pyarrow/src/arrow/python/vendored/CMakeLists.txt: ' ' expected after '"'
+2026-04-23 21:44:10,601 [INFO] TXT parsed: CMakeLists.txt | Type: formation_tops
+2026-04-23 21:44:10,602 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/numpy-2.4.4.dist-info/licenses/LICENSE.txt: ',' expected after '"'
+2026-04-23 21:44:10,603 [INFO] TXT parsed: LICENSE.txt | Type: tabular_data
+2026-04-23 21:44:10,603 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,604 [INFO] TXT parsed: dragon4_LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,604 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,605 [INFO] TXT parsed: table_API_readme.txt | Type: free_text
+2026-04-23 21:44:10,606 [INFO] TXT parsed: README.txt | Type: free_text
+2026-04-23 21:44:10,607 [INFO] TXT parsed: svmlight_invalid_order.txt | Type: free_text
+2026-04-23 21:44:10,608 [INFO] TXT parsed: svmlight_multilabel.txt | Type: free_text
+2026-04-23 21:44:10,609 [INFO] TXT parsed: svmlight_classification.txt | Type: free_text
+2026-04-23 21:44:10,612 [INFO] TXT parsed: svmlight_invalid.txt | Type: free_text
+2026-04-23 21:44:10,614 [WARNING] Failed to parse formation tops ../geoscience_pipeline/venv/lib/python3.12/site-packages/plotly/labextension/static/1.9daa5160b7fc741623bf.js.LICENSE.txt: Expected 4 fields in line 5, saw 12
+2026-04-23 21:44:10,614 [INFO] TXT parsed: 1.9daa5160b7fc741623bf.js.LICENSE.txt | Type: formation_tops
+2026-04-23 21:44:10,617 [INFO] TXT parsed: README.txt | Type: free_text
+2026-04-23 21:44:10,619 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/pdfcorefonts/readme.txt: Expected 8 fields in line 5, saw 11
+2026-04-23 21:44:10,619 [INFO] TXT parsed: readme.txt | Type: tabular_data
+2026-04-23 21:44:10,620 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,620 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,621 [INFO] TXT parsed: API_CHANGES.txt | Type: free_text
+2026-04-23 21:44:10,622 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,625 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/numpy/_core/tests/data/umath-validation-set-README.txt: Expected 10 fields in line 3, saw 11
+2026-04-23 21:44:10,626 [INFO] TXT parsed: umath-validation-set-README.txt | Type: tabular_data
+2026-04-23 21:44:10,627 [INFO] TXT parsed: LICENSE.txt | Type: free_text
+2026-04-23 21:44:10,629 [ERROR] Error parsing txt ../geoscience_pipeline/venv/lib/python3.12/site-packages/joblib-1.5.3.dist-info/licenses/LICENSE.txt: Expected 6 fields in line 10, saw 11
+2026-04-23 21:44:10,629 [INFO] TXT parsed: LICENSE.txt | Type: tabular_data
+2026-04-23 21:44:10,666 [INFO] PET file SMH_Petrel-RE (1).pet: format=raw
+2026-04-23 21:44:10,690 [INFO] PET file SMH_Petrel-RE.pet: format=raw
+2026-04-23 21:44:10,698 [INFO] PET file CHINGUITTI_Static_Model_2006 (2).pet: format=raw
+2026-04-23 21:44:10,704 [INFO] PET file CHINGUITTI_Static_Model_2006 (1).pet: format=raw
+2026-04-23 21:44:10,721 [INFO] PET file model-for-partners-Dec-2006 (1).pet: format=raw
+2026-04-23 21:44:14,833 [INFO] [SAVED] Multi-track log plot → outputs/figures/Cormoran-1_multitrack.png
+2026-04-23 21:44:24,350 [INFO] [SAVED] Seismic section → outputs/figures/fig1-4a synthetic seismogram TVF_section.png
+2026-04-23 21:44:27,167 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7c1 wavelet 5-45Hz_section.png
+2026-04-23 21:44:32,044 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7e seismic xline 6654 right_section.png
+2026-04-23 21:44:37,065 [INFO] [SAVED] Seismic section → outputs/figures/fig1-5a synthetic seismogram 5-90Hz_section.png
+2026-04-23 21:44:42,242 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6b synthetic seismogram TVF_section.png
+2026-04-23 21:44:47,844 [INFO] [SAVED] Seismic section → outputs/figures/fig1-5c VSP corridor stack 5-90Hz_section.png
+2026-04-23 21:44:53,559 [INFO] [SAVED] Seismic section → outputs/figures/fig1-3 stacked Z component VSP_section.png
+2026-04-23 21:44:56,232 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6c2 wavelet 5-25Hz_section.png
+2026-04-23 21:45:02,703 [INFO] [SAVED] Seismic section → outputs/figures/fig1-4c VSP corridor stack TVF_section.png
+2026-04-23 21:45:07,379 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7b synthetic seismogram TVF_section.png
+2026-04-23 21:45:10,047 [INFO] [SAVED] Seismic section → outputs/figures/fig1-5b wavelet 5-90Hz_section.png
+2026-04-23 21:45:14,563 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6a seismic inline 604 left_section.png
+2026-04-23 21:45:17,274 [INFO] [SAVED] Seismic section → outputs/figures/fig1-4b2 wavelet 5-25Hz_section.png
+2026-04-23 21:45:21,556 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6e seismic inline 604 right_section.png
+2026-04-23 21:45:28,102 [INFO] [SAVED] Seismic section → outputs/figures/fig1-8 synthetic seismograms in seismic inline 604_section.png
+2026-04-23 21:45:31,173 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7c2 wavelet 5-25Hz_section.png
+2026-04-23 21:45:34,670 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6c1 wavelet 5-45Hz_section.png
+2026-04-23 21:45:40,175 [INFO] [SAVED] Seismic section → outputs/figures/fig1-10 VSP corridor stacks in seismic inline 604_section.png
+2026-04-23 21:45:47,374 [INFO] [SAVED] Seismic section → outputs/figures/fig1-4d rig source VSP TVF_section.png
+2026-04-23 21:45:52,176 [INFO] [SAVED] Seismic section → outputs/figures/fig1-11 VSP corridor stacks in seismic xline 6654_section.png
+2026-04-23 21:45:57,570 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7d VSP corridor stack TVF_section.png
+2026-04-23 21:46:01,843 [INFO] [SAVED] Seismic section → outputs/figures/fig1-4b1 wavelet 5-45Hz_section.png
+2026-04-23 21:46:08,219 [INFO] [SAVED] Seismic section → outputs/figures/fig1-5d rig source VSP 5-90Hz_section.png
+2026-04-23 21:46:12,769 [INFO] [SAVED] Seismic section → outputs/figures/fig1-9 synthetic seismograms in seismic xline 6654_section.png
+2026-04-23 21:46:18,145 [INFO] [SAVED] Seismic section → outputs/figures/fig1-6d VSP corridor stack TVF_section.png
+2026-04-23 21:46:23,694 [INFO] [SAVED] Seismic section → outputs/figures/fig1-7a seismic xline 6654 left_section.png
+2026-04-23 21:46:25,127 [INFO] Exported processed well data → outputs/data/Cormoran-1_processed.csv
+2026-04-23 21:46:25,127 [INFO] Pipeline completed successfully.
