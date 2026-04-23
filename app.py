@@ -172,11 +172,27 @@ with tab_wells:
 # ==========================================
 # TAB 2: SEISMIC DATA
 # ==========================================
+# ==========================================
+# TAB 2: SEISMIC DATA
+# ==========================================
+@st.cache_data
+def load_seismic_cube(file_path):
+    try:
+        with segyio.open(file_path, ignore_geometry=True) as f:
+            data = segyio.tools.cube(f)
+            samples = f.samples
+            # Attempt to get geometry
+            try:
+                with segyio.open(file_path) as f_geom:
+                    inlines = f_geom.ilines
+                    xlines = f_geom.xlines
+                    return data, samples, inlines, xlines
+            except:
+                return data, samples, np.arange(data.shape[0]), np.arange(data.shape[1])
+    except Exception as e:
+        return None, str(e), None, None
+
 with tab_seismic:
-    seismic_data_dir = "outputs/data"
-    seismic_fig_dir = "outputs/figures"
-    
-    # Load SEGY data if available
     manifest_path = "outputs/data/pipeline_manifest.json"
     if os.path.exists(manifest_path):
         with open(manifest_path, "r") as f:
@@ -184,37 +200,50 @@ with tab_seismic:
         
         segy_files = manifest.get("segy", [])
         if not segy_files:
-            st.warning("No SEGY files found in pipeline.")
+            st.warning("No SEGY files found.")
         else:
             selected_segy = st.selectbox("Select Seismic Cube", segy_files)
             
-            st.info("Loading 3D Seismic Cube for Interactive Visualization...")
+            cube, samples, inlines, xlines = load_seismic_cube(selected_segy)
             
-            st.subheader("Interactive 3D Seismic Slicer")
-            s1, s2 = st.columns([1, 4])
-            with s1:
-                direction = st.radio("Slicing Direction", ["Inline", "Crossline", "Time-Slice"])
-                slice_val = st.slider("Slice Number", 0, 1000, 500)
-                cmap = st.selectbox("Colormap", ["seismic", "jet", "gray", "RdBu"])
-            
-            with s2:
-                st.write(f"Displaying {direction} Slice: {slice_val}")
-                img_path = os.path.join(seismic_fig_dir, f"{Path(selected_segy).stem}_section.png")
-                if os.path.exists(img_path):
-                    st.image(img_path, use_container_width=True, caption=f"Static Preview of {Path(selected_segy).name}")
-                else:
-                    st.warning("Slice preview image not found. Please run the pipeline.")
+            if cube is None:
+                st.error(f"Failed to load seismic data: {samples}")
+            else:
+                st.subheader("Interactive 3D Seismic Slicer")
+                s1, s2 = st.columns([1, 4])
+                with s1:
+                    direction = st.radio("Slicing Direction", ["Inline", "Crossline", "Time-Slice"])
+                    
+                    if direction == "Inline":
+                        idx = st.slider("Inline Index", 0, cube.shape[0]-1, cube.shape[0]//2)
+                        slice_data = cube[idx, :, :].T
+                        xlabel, ylabel = "Crossline", "Time (ms)"
+                    elif direction == "Crossline":
+                        idx = st.slider("Crossline Index", 0, cube.shape[1]-1, cube.shape[1]//2)
+                        slice_data = cube[:, idx, :].T
+                        xlabel, ylabel = "Inline", "Time (ms)"
+                    else:
+                        idx = st.slider("Time Sample", 0, cube.shape[2]-1, cube.shape[2]//2)
+                        slice_data = cube[:, :, idx].T
+                        xlabel, ylabel = "Inline", "Crossline"
+                        
+                    cmap = st.selectbox("Colormap", ["RdBu", "seismic", "jet", "gray", "Viridis"])
+                    contrast = st.slider("Contrast", 0.1, 5.0, 1.0)
+                
+                with s2:
+                    v_max = np.percentile(np.abs(slice_data), 98) / contrast
+                    fig = px.imshow(slice_data, 
+                                   color_continuous_scale=cmap, 
+                                   aspect='auto',
+                                   zmin=-v_max, zmax=v_max if cmap in ["RdBu", "seismic"] else None,
+                                   labels=dict(x=xlabel, y=ylabel, color="Amplitude"))
+                    
+                    fig.update_layout(height=700, margin=dict(l=0, r=0, t=30, b=0))
+                    st.plotly_chart(fig, use_container_width=True)
 
-            st.divider()
-            st.subheader("All Seismic Sections (Static HD)")
-            seismic_imgs = [f for f in os.listdir(seismic_fig_dir) if "_section" in f]
-            if seismic_imgs:
-                for img in seismic_imgs:
-                    st.image(os.path.join(seismic_fig_dir, img), caption=img, use_container_width=True)
-
-def identify_seismic_data_parameters(filepath_in):
-    with segyio.open(filepath_in, ignore_geometry=True) as f:
-        data_format = f.format
+# ==========================================
+# TAB 3: PROJECT METADATA & EVENTS
+# ==========================================
     inline_xline = [[189,193], [9,13], [9,21], [5,21]]
     state = False
     for k, byte_loc in enumerate(inline_xline):
